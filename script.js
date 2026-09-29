@@ -61,13 +61,13 @@ function validate() {
     const selectedR = radiusInputs.filter((input) => input.checked);
 
     if (!Number.isInteger(x) || x < -4 || x > 4) {
-        messages.push("Выберите значение X от −4 до 4.");
+        messages.push("Выберите значение X от −4 до 4");
     }
 
     if (!y) {
-        messages.push("Введите Y числом в обычной десятичной записи.");
+        messages.push("Число Y должно быть десятичным числом с точкой или запятой в качестве разделителя");
     } else if (compareDecimalToInteger(y, -5) < 0 || compareDecimalToInteger(y, 5) > 0) {
-        messages.push("Координата Y должна находиться в диапазоне от −5 до 5.");
+        messages.push("Координата Y должна находиться в диапазоне от −5 до 5");
     }
 
     if (selectedR.length !== 1) {
