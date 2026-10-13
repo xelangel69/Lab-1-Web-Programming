@@ -270,49 +270,6 @@
         footer > a:hover {
             color: #ff174f;
         }
-
-        @media (max-width: 760px) {
-            #page-header {
-                padding: 14px 16px;
-            }
-
-            .header-content > img {
-                width: 46px;
-                height: 46px;
-            }
-
-            .header-title {
-                font-size: 18px;
-            }
-
-            .student-info {
-                font-size: 13px;
-            }
-
-            .content {
-                max-width: calc(100% - 20px);
-                margin: 14px auto;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .work-area {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-
-            .results-heading {
-                align-items: flex-start;
-            }
-
-            footer {
-                flex-direction: column;
-                align-items: center;
-                gap: 9px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -332,12 +289,10 @@
                 <canvas id="plot" width="420" height="420">
                     Ваш браузер не поддерживает Canvas.
                 </canvas>
-                <p class="graph-note">Область для R = <span id="current-radius">3</span></p>
             </div>
 
             <form id="point-form" class="form-block" novalidate>
                 <h1>Проверка точки</h1>
-                <p class="form-description">Выберите X, укажите Y и отметьте один или несколько радиусов.</p>
 
                 <div class="field">
                     <label for="x-value">Координата X</label>

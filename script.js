@@ -13,6 +13,10 @@ const radiusLabel = document.getElementById("current-radius");
 const canvas = document.getElementById("plot");
 const ctx = canvas.getContext("2d");
 
+const ALLOWED_X_VALUES = new Set(["-4", "-3", "-2", "-1", "0", "1", "2", "3", "4"]);
+const ALLOWED_R_VALUES = new Set([1, 2, 3, 4, 5]);
+const COMPARISON_EPSILON = 16 * Number.EPSILON;
+
 let results = loadResults();
 let currentR = 3;
 
@@ -49,37 +53,55 @@ function getSelectedR() {
 
 function validateForm() {
     const messages = [];
+    const xText = xInput.value;
     const yText = yInput.value.trim().replace(",", ".");
     const selectedR = getSelectedR();
+    const y = Number(yText);
 
-    if (xInput.value === "") {
+    if (xText === "") {
         messages.push("выберите X");
+    } else if (!ALLOWED_X_VALUES.has(xText)) {
+        messages.push("X должен быть целым числом от -4 до 4");
     }
 
     if (yText === "" || !/^-?\d+(\.\d+)?$/.test(yText)) {
         messages.push("Y должен быть числом");
-    } else if (Number(yText) < -5 || Number(yText) > 5) {
+    } else if (!Number.isFinite(y) || y < -5 || y > 5) {
         messages.push("Y должен быть от -5 до 5");
     }
 
     if (selectedR.length === 0) {
         messages.push("выберите хотя бы один радиус R");
+    } else if (selectedR.some(function (r) { return !ALLOWED_R_VALUES.has(r); })) {
+        messages.push("R должен быть целым числом от 1 до 5");
     }
 
     return {
         messages: messages,
         values: messages.length === 0 ? {
-            x: Number(xInput.value),
-            y: Number(yText),
+            x: Number(xText),
+            y: y,
             radii: selectedR
         } : null
     };
 }
 
+function lessOrEqual(left, right) {
+    const tolerance = COMPARISON_EPSILON * Math.max(1, Math.abs(left), Math.abs(right));
+    return left <= right + tolerance;
+}
+
+function greaterOrEqual(left, right) {
+    return lessOrEqual(right, left);
+}
+
 function isPointInside(x, y, r) {
-    const inRectangle = x >= -r / 2 && x <= 0 && y >= 0 && y <= r;
-    const inTriangle = x >= -r && x <= 0 && y <= 0 && y >= (-x - r) / 2;
-    const inCircle = x >= 0 && y <= 0 && x * x + y * y <= r * r / 4;
+    const inRectangle = greaterOrEqual(x, -r / 2) && lessOrEqual(x, 0)
+        && greaterOrEqual(y, 0) && lessOrEqual(y, r);
+    const inTriangle = greaterOrEqual(x, -r) && lessOrEqual(x, 0)
+        && lessOrEqual(y, 0) && greaterOrEqual(y, (-x - r) / 2);
+    const inCircle = greaterOrEqual(x, 0) && lessOrEqual(y, 0)
+        && lessOrEqual(x * x + y * y, r * r / 4);
 
     return inRectangle || inTriangle || inCircle;
 }
@@ -128,7 +150,9 @@ function drawPlot(r) {
     const scale = 140 / r;
 
     currentR = r;
-    radiusLabel.textContent = r;
+    if (radiusLabel !== null) {
+        radiusLabel.textContent = r;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawArea(center, scale, r);
