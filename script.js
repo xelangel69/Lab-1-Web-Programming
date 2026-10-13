@@ -9,13 +9,10 @@ const rInputs = document.querySelectorAll('input[name="r"]');
 const errors = document.getElementById("errors");
 const resultsBody = document.getElementById("results-body");
 const clearButton = document.getElementById("clear-results");
-const radiusLabel = document.getElementById("current-radius");
 const canvas = document.getElementById("plot");
 const ctx = canvas.getContext("2d");
 
-const ALLOWED_X_VALUES = new Set(["-4", "-3", "-2", "-1", "0", "1", "2", "3", "4"]);
-const ALLOWED_R_VALUES = new Set([1, 2, 3, 4, 5]);
-const COMPARISON_EPSILON = 16 * Number.EPSILON;
+const EPS = 1e-12;
 
 let results = loadResults();
 let currentR = 3;
@@ -53,14 +50,14 @@ function getSelectedR() {
 
 function validateForm() {
     const messages = [];
-    const xText = xInput.value;
+    const x = Number(xInput.value);
     const yText = yInput.value.trim().replace(",", ".");
-    const selectedR = getSelectedR();
     const y = Number(yText);
+    const radii = getSelectedR();
 
-    if (xText === "") {
+    if (xInput.value === "") {
         messages.push("выберите X");
-    } else if (!ALLOWED_X_VALUES.has(xText)) {
+    } else if (!Number.isInteger(x) || x < -4 || x > 4) {
         messages.push("X должен быть целым числом от -4 до 4");
     }
 
@@ -70,38 +67,32 @@ function validateForm() {
         messages.push("Y должен быть от -5 до 5");
     }
 
-    if (selectedR.length === 0) {
+    if (radii.length === 0) {
         messages.push("выберите хотя бы один радиус R");
-    } else if (selectedR.some(function (r) { return !ALLOWED_R_VALUES.has(r); })) {
+    } else if (radii.some(function (r) {
+        return !Number.isInteger(r) || r < 1 || r > 5;
+    })) {
         messages.push("R должен быть целым числом от 1 до 5");
     }
 
-    return {
-        messages: messages,
-        values: messages.length === 0 ? {
-            x: Number(xText),
-            y: y,
-            radii: selectedR
-        } : null
-    };
-}
+    errors.textContent = messages.join("; ");
 
-function lessOrEqual(left, right) {
-    const tolerance = COMPARISON_EPSILON * Math.max(1, Math.abs(left), Math.abs(right));
-    return left <= right + tolerance;
-}
+    if (messages.length > 0) {
+        return null;
+    }
 
-function greaterOrEqual(left, right) {
-    return lessOrEqual(right, left);
+    return { x: x, y: y, radii: radii };
 }
 
 function isPointInside(x, y, r) {
-    const inRectangle = greaterOrEqual(x, -r / 2) && lessOrEqual(x, 0)
-        && greaterOrEqual(y, 0) && lessOrEqual(y, r);
-    const inTriangle = greaterOrEqual(x, -r) && lessOrEqual(x, 0)
-        && lessOrEqual(y, 0) && greaterOrEqual(y, (-x - r) / 2);
-    const inCircle = greaterOrEqual(x, 0) && lessOrEqual(y, 0)
-        && lessOrEqual(x * x + y * y, r * r / 4);
+    const inRectangle = x >= -r / 2 - EPS && x <= EPS
+        && y >= -EPS && y <= r + EPS;
+
+    const inTriangle = x >= -r - EPS && x <= EPS
+        && y <= EPS && y >= (-x - r) / 2 - EPS;
+
+    const inCircle = x >= -EPS && y <= EPS
+        && x * x + y * y <= r * r / 4 + EPS;
 
     return inRectangle || inTriangle || inCircle;
 }
@@ -150,9 +141,6 @@ function drawPlot(r) {
     const scale = 140 / r;
 
     currentR = r;
-    if (radiusLabel !== null) {
-        radiusLabel.textContent = r;
-    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawArea(center, scale, r);
@@ -268,16 +256,12 @@ yInput.addEventListener("input", function () {
 
 form.addEventListener("submit", function (event) {
     event.preventDefault();
-    errors.textContent = "";
 
-    const check = validateForm();
-    errors.textContent = check.messages.join("; ");
-
-    if (check.values === null) {
+    const values = validateForm();
+    if (values === null) {
         return;
     }
 
-    const values = check.values;
     const timestamp = Date.now();
 
     values.radii.forEach(function (r) {
