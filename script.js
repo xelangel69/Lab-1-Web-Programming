@@ -63,6 +63,8 @@ function validateForm() {
 
     if (yText === "" || !/^-?\d+(\.\d+)?$/.test(yText)) {
         messages.push("Y должен быть числом");
+    } else if (yText.includes(".") && yText.split(".")[1].length > 10) {
+        messages.push("Y должен содержать не более 10 знаков после запятой");
     } else if (!Number.isFinite(y) || y < -5 || y > 5) {
         messages.push("Y должен быть от -5 до 5");
     }
