@@ -5,106 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Лабораторная работа №1</title>
     <style>
-        :root {
-            color: #182233;
-            background: #eef3f8;
+        body {
+            margin: 0;
+            color: #222;
+            background-color: #eeeeee;
             font-family: Arial, sans-serif;
         }
 
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            min-width: 320px;
-            color: inherit;
-        }
-
         #page-header {
-            padding: 22px 28px;
-            color: #f7fbff;
-            background: #16324f;
-            font: 20px Georgia, serif;
-            box-shadow: 0 3px 12px rgb(17 37 61 / 18%);
-        }
-
-        main {
-            width: min(1120px, calc(100% - 32px));
-            margin: 28px auto;
-        }
-
-        .workspace {
-            display: block;
-            padding: 24px;
-            border-radius: 16px;
-            background: white;
-            box-shadow: 0 10px 30px rgb(28 50 74 / 10%);
-        }
-
-        .top-block {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 34px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .canvas-block {
-            display: block;
+            padding: 18px;
+            color: white;
+            background-color: #2f5d7c;
+            font-family: Georgia, serif;
+            font-size: 20px;
             text-align: center;
         }
 
+        .content {
+            width: 900px;
+            max-width: calc(100% - 30px);
+            margin: 25px auto;
+        }
+
+        .work-area,
+        .results {
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #cccccc;
+        }
+
+        .graph-block,
+        .form-block {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .graph-block {
+            width: 48%;
+            text-align: center;
+        }
+
+        .form-block {
+            width: 46%;
+            margin-left: 4%;
+        }
+
+        .form-block > h1 {
+            margin-top: 10px;
+            font-size: 24px;
+        }
+
         #plot {
-            display: block;
-            width: 420px;
             max-width: 100%;
             height: auto;
-            border: 1px solid #d7e1ec;
-            border-radius: 12px;
-            background: #fbfdff;
-        }
-
-        .canvas-block > p {
-            margin: 10px 0 0;
-            color: #5a6877;
-            font-size: 13px;
-        }
-
-        #point-form {
-            display: block;
-            flex: 1 1 360px;
-            max-width: 470px;
-        }
-
-        #point-form > h1 {
-            margin: 0 0 20px;
-            font-size: 26px;
+            border: 1px solid #999999;
         }
 
         .field {
-            display: block;
-            margin: 0 0 17px;
+            margin-bottom: 16px;
         }
 
         .field > label,
         .field > legend {
             display: block;
-            margin-bottom: 7px;
-            font-weight: 700;
+            margin-bottom: 6px;
+            font-weight: bold;
         }
 
-        input[type="text"], select {
+        input[type="text"],
+        select {
+            box-sizing: border-box;
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #aebdca;
-            border-radius: 8px;
-            color: inherit;
-            background: white;
-            font-size: 16px;
-        }
-
-        input[type="text"]:focus, select:focus {
-            outline: 3px solid rgb(33 150 243 / 18%);
-            border-color: #1683d8;
+            padding: 8px;
+            border: 1px solid #888888;
+            font-size: 15px;
         }
 
         fieldset.field {
@@ -112,85 +86,49 @@
             border: 0;
         }
 
-        .radius-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
         .radius-options > label {
-            display: inline-flex;
-            gap: 6px;
-            align-items: center;
-            padding: 8px 12px;
-            border: 1px solid #c7d2de;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .radius-options > label:hover { 
-            background: #f1f7fc; 
-        }
-
-        input[type="checkbox"] { 
-            accent-color: #1683d8; 
+            display: inline-block;
+            margin-right: 8px;
+            padding: 5px;
         }
 
         #errors {
-            min-height: 22px;
-            margin: 4px 0 12px;
-            color: #b42318;
-            line-height: 1.4;
+            min-height: 20px;
+            margin-bottom: 10px;
+            color: #b00020;
         }
 
         #errors:not(:empty)::before {
-            content: "⚠ ";
+            content: "Ошибка: ";
+            font-weight: bold;
         }
 
-        button[type="submit"], #clear-results {
-            padding: 11px 17px;
-            border: 0;
-            border-radius: 8px;
+        button {
+            padding: 9px 15px;
+            border: 1px solid #24485f;
             color: white;
-            background: #1479c9;
-            font-size: 15px;
-            font-weight: 700;
+            background-color: #2f5d7c;
+            font: inherit;
             cursor: pointer;
         }
 
-        button[type="submit"]:hover { 
-            background: #0f67ad; 
+        button:hover {
+            background-color: #24485f;
         }
 
-        .results-block {
-            display: block;
-            margin-top: 30px;
+        .results {
+            margin-top: 20px;
         }
 
-        .results-heading {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            justify-content: space-between;
+        .results h2 {
+            display: inline-block;
+            margin: 0 20px 15px 0;
         }
-
-        .results-heading > h2 { margin: 0; }
 
         #clear-results {
-            color: #344457;
-            background: #e7eef5;
-        }
-
-        #clear-results:hover { 
-            background: #d9e4ee; 
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-            margin-top: 14px;
-            border: 1px solid #d6e0ea;
-            border-radius: 10px;
+            color: #222;
+            background-color: #dddddd;
+            border-color: #999999;
         }
 
         table {
@@ -198,114 +136,95 @@
             border-collapse: collapse;
         }
 
-        th, td {
-            padding: 11px 13px;
-            border-bottom: 1px solid #e4ebf1;
+        th,
+        td {
+            padding: 9px;
+            border: 1px solid #aaaaaa;
             text-align: center;
-            white-space: nowrap;
         }
 
-        thead > tr { 
-            background: #edf5fb; 
+        thead > tr {
+            background-color: #dbe8f0;
         }
 
-        tbody > tr:last-child > td { 
-            border-bottom: 0; 
+        td[data-hit="true"] {
+            color: green;
         }
 
-        tbody > tr:hover { 
-            background: #f8fbfd; 
-        }
-
-        td[data-hit="true"] { 
-            color: #087443; font-weight: 700; 
-        }
-
-        td[data-hit="false"] { 
-            color: #bd2c20; font-weight: 700; 
-        }
-
-        @media (max-width: 620px) {
-            #page-header { padding: 17px 16px; font-size: 17px; }
-            main { width: min(100% - 18px, 1120px); margin: 12px auto; }
-            .workspace { padding: 14px; }
-            .top-block { gap: 22px; }
+        td[data-hit="false"] {
+            color: #b00020;
         }
     </style>
 </head>
 <body>
-    <header id="page-header">Лабораторная работа №1 • Кириллов Иван Александрович Р3107 • Вариант №12619</header>
+    <header id="page-header">
+        Лабораторная работа №1 - Кириллов Иван Александрович - Р3107 - Вариант №12619
+    </header>
 
-    <main>
-        <section class="workspace">
-            <div class="top-block">
-                <div class="canvas-block">
-                    <canvas id="plot" width="420" height="420">
-                        Ваш браузер не поддерживает Canvas.
-                    </canvas>
-                </div>
-
-                <form id="point-form" novalidate>
-                    <h1>Проверка попадания точки</h1>
-
-                    <div class="field">
-                        <label for="x-value">Координата X</label>
-                        <select id="x-value" name="x" required>
-                            <option value="">Выберите X</option>
-                            <option value="-4">−4</option>
-                            <option value="-3">−3</option>
-                            <option value="-2">−2</option>
-                            <option value="-1">−1</option>
-                            <option value="0">0</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="y-value">Координата Y</label>
-                        <input id="y-value" name="y" type="text" inputmode="decimal"
-                               autocomplete="off" placeholder="Число от -5 до 5" required>
-                    </div>
-
-                    <fieldset class="field">
-                        <legend>Радиус R</legend>
-                        <div class="radius-options">
-                            <label><input type="checkbox" name="r" value="1"> 1</label>
-                            <label><input type="checkbox" name="r" value="2"> 2</label>
-                            <label><input type="checkbox" name="r" value="3"> 3</label>
-                            <label><input type="checkbox" name="r" value="4"> 4</label>
-                            <label><input type="checkbox" name="r" value="5"> 5</label>
-                        </div>
-                    </fieldset>
-
-                    <div id="errors" role="alert" aria-live="polite"></div>
-                    <button type="submit">Проверить точку</button>
-                </form>
+    <main class="content">
+        <section class="work-area">
+            <div class="graph-block">
+                <canvas id="plot" width="420" height="420">
+                    Ваш браузер не поддерживает Canvas.
+                </canvas>
             </div>
 
-            <div class="results-block">
-                <div class="results-heading">
-                    <h2>Результаты проверок</h2>
-                    <button id="clear-results" type="button">Очистить историю</button>
+            <form id="point-form" class="form-block" novalidate>
+                <h1>Проверка точки</h1>
+
+                <div class="field">
+                    <label for="x-value">Координата X</label>
+                    <select id="x-value" name="x">
+                        <option value="">Выберите X</option>
+                        <option value="-4">-4</option>
+                        <option value="-3">-3</option>
+                        <option value="-2">-2</option>
+                        <option value="-1">-1</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
                 </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th scope="col">X</th>
-                                <th scope="col">Y</th>
-                                <th scope="col">R</th>
-                                <th scope="col">Результат</th>
-                                <th scope="col">Дата/время</th>
-                            </tr>
-                        </thead>
-                        <tbody id="results-body"></tbody>
-                    </table>
+
+                <div class="field">
+                    <label for="y-value">Координата Y</label>
+                    <input id="y-value" name="y" type="text" placeholder="Число от -5 до 5">
                 </div>
-            </div>
+
+                <fieldset class="field">
+                    <legend>Радиус R</legend>
+                    <div class="radius-options">
+                        <label><input type="checkbox" name="r" value="1"> 1</label>
+                        <label><input type="checkbox" name="r" value="2"> 2</label>
+                        <label><input type="checkbox" name="r" value="3"> 3</label>
+                        <label><input type="checkbox" name="r" value="4"> 4</label>
+                        <label><input type="checkbox" name="r" value="5"> 5</label>
+                    </div>
+                </fieldset>
+
+                <div id="errors"></div>
+                <button type="submit">Проверить</button>
+            </form>
+        </section>
+
+        <section class="results">
+            <h2>Результаты</h2>
+            <button id="clear-results" type="button">Очистить</button>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>X</th>
+                        <th>Y</th>
+                        <th>R</th>
+                        <th>Результат</th>
+                        <th>Дата и время</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body"></tbody>
+            </table>
         </section>
     </main>
 
