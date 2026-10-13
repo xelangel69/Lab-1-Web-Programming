@@ -9,20 +9,22 @@ const rInputs = document.querySelectorAll('input[name="r"]');
 const errors = document.getElementById("errors");
 const resultsBody = document.getElementById("results-body");
 const clearButton = document.getElementById("clear-results");
+const radiusLabel = document.getElementById("current-radius");
 const canvas = document.getElementById("plot");
 const ctx = canvas.getContext("2d");
 
 let results = loadResults();
+let currentR = 3;
 
 function loadResults() {
-    const savedResults = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEY);
 
-    if (savedResults === null) {
+    if (saved === null) {
         return [];
     }
 
     try {
-        const data = JSON.parse(savedResults);
+        const data = JSON.parse(saved);
         return Array.isArray(data) ? data : [];
     } catch (error) {
         return [];
@@ -47,9 +49,7 @@ function getSelectedR() {
 
 function validateForm() {
     const messages = [];
-    const x = Number(xInput.value);
     const yText = yInput.value.trim().replace(",", ".");
-    const y = Number(yText);
     const selectedR = getSelectedR();
 
     if (xInput.value === "") {
@@ -58,21 +58,21 @@ function validateForm() {
 
     if (yText === "" || !/^-?\d+(\.\d+)?$/.test(yText)) {
         messages.push("Y должен быть числом");
-    } else if (y < -5 || y > 5) {
+    } else if (Number(yText) < -5 || Number(yText) > 5) {
         messages.push("Y должен быть от -5 до 5");
     }
 
-    if (selectedR.length !== 1) {
-        messages.push("выберите одно значение R");
-    }
-
-    if (messages.length > 0) {
-        return { messages: messages, values: null };
+    if (selectedR.length === 0) {
+        messages.push("выберите хотя бы один радиус R");
     }
 
     return {
-        messages: [],
-        values: { x: x, y: y, r: selectedR[0] }
+        messages: messages,
+        values: messages.length === 0 ? {
+            x: Number(xInput.value),
+            y: Number(yText),
+            radii: selectedR
+        } : null
     };
 }
 
@@ -98,6 +98,17 @@ function addCell(row, text, hit) {
 function showResults() {
     resultsBody.innerHTML = "";
 
+    if (results.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.textContent = "Проверок пока нет";
+        cell.colSpan = 5;
+        cell.className = "empty-row";
+        row.appendChild(cell);
+        resultsBody.appendChild(row);
+        return;
+    }
+
     for (let i = results.length - 1; i >= 0; i--) {
         const item = results[i];
         const row = document.createElement("tr");
@@ -116,10 +127,18 @@ function drawPlot(r) {
     const center = canvas.width / 2;
     const scale = 140 / r;
 
+    currentR = r;
+    radiusLabel.textContent = r;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Рисуем область.
-    ctx.fillStyle = "#5aa9e6";
+    drawArea(center, scale, r);
+    drawAxes(center);
+    drawMarks(center, scale, r);
+    drawPoints(center, scale, r);
+}
+
+function drawArea(center, scale, r) {
+    ctx.fillStyle = "#69a8df";
     ctx.fillRect(center - r * scale / 2, center - r * scale, r * scale / 2, r * scale);
 
     ctx.beginPath();
@@ -134,10 +153,11 @@ function drawPlot(r) {
     ctx.arc(center, center, r * scale / 2, 0, Math.PI / 2);
     ctx.closePath();
     ctx.fill();
+}
 
-    // Рисуем оси и стрелки.
-    ctx.strokeStyle = "black";
-    ctx.fillStyle = "black";
+function drawAxes(center) {
+    ctx.strokeStyle = "#20242b";
+    ctx.fillStyle = "#20242b";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(20, center);
@@ -157,9 +177,6 @@ function drawPlot(r) {
     ctx.font = "14px Arial";
     ctx.fillText("x", 400, center - 8);
     ctx.fillText("y", center + 8, 20);
-
-    drawMarks(center, scale, r);
-    drawPoints(center, scale, r);
 }
 
 function drawMarks(center, scale, r) {
@@ -168,12 +185,11 @@ function drawMarks(center, scale, r) {
     values.forEach(function (value) {
         const x = center + value * scale;
         const y = center - value * scale;
-        let label = String(value);
+        let label = "R";
 
         if (value === -r) label = "-R";
         if (value === -r / 2) label = "-R/2";
         if (value === r / 2) label = "R/2";
-        if (value === r) label = "R";
 
         ctx.beginPath();
         ctx.moveTo(x, center - 4);
@@ -194,21 +210,22 @@ function drawPoints(center, scale, r) {
         }
 
         ctx.beginPath();
-        ctx.arc(center + Number(item.x) * scale, center - Number(item.y) * scale, 4, 0, Math.PI * 2);
-        ctx.fillStyle = item.hit ? "green" : "red";
+        ctx.arc(center + Number(item.x) * scale, center - Number(item.y) * scale, 5, 0, Math.PI * 2);
+        ctx.fillStyle = item.hit ? "#17823b" : "#d20f40";
         ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.stroke();
     });
 }
 
 rInputs.forEach(function (input) {
     input.addEventListener("change", function () {
+        const selectedR = getSelectedR();
+
         if (input.checked) {
-            rInputs.forEach(function (otherInput) {
-                if (otherInput !== input) {
-                    otherInput.checked = false;
-                }
-            });
             drawPlot(Number(input.value));
+        } else if (selectedR.length > 0) {
+            drawPlot(selectedR[selectedR.length - 1]);
         } else {
             drawPlot(3);
         }
@@ -217,12 +234,17 @@ rInputs.forEach(function (input) {
     });
 });
 
+xInput.addEventListener("change", function () {
+    errors.textContent = "";
+});
+
 yInput.addEventListener("input", function () {
     errors.textContent = "";
 });
 
 form.addEventListener("submit", function (event) {
     event.preventDefault();
+    errors.textContent = "";
 
     const check = validateForm();
     errors.textContent = check.messages.join("; ");
@@ -232,29 +254,29 @@ form.addEventListener("submit", function (event) {
     }
 
     const values = check.values;
-    const hit = isPointInside(values.x, values.y, values.r);
+    const timestamp = Date.now();
 
-    results.push({
-        x: values.x,
-        y: values.y,
-        r: values.r,
-        hit: hit,
-        timestamp: Date.now()
+    values.radii.forEach(function (r) {
+        results.push({
+            x: values.x,
+            y: values.y,
+            r: r,
+            hit: isPointInside(values.x, values.y, r),
+            timestamp: timestamp
+        });
     });
 
     saveResults();
     showResults();
-    drawPlot(values.r);
+    drawPlot(values.radii[values.radii.length - 1]);
 });
 
 clearButton.addEventListener("click", function () {
     results = [];
     saveResults();
     showResults();
-
-    const selectedR = getSelectedR();
-    drawPlot(selectedR.length === 1 ? selectedR[0] : 3);
+    drawPlot(currentR);
 });
 
 showResults();
-drawPlot(3);
+drawPlot(currentR);

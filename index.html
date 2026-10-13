@@ -5,80 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Лабораторная работа №1</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            color: #222;
-            background-color: #eeeeee;
+            min-width: 320px;
+            color: #20242b;
+            background-color: #f2f4f7;
             font-family: Arial, sans-serif;
         }
 
         #page-header {
-            padding: 18px;
+            padding: 16px 24px;
             color: white;
-            background-color: #2f5d7c;
+            background-color: #111111;
             font-family: Georgia, serif;
-            font-size: 20px;
-            text-align: center;
+            font-size: 18px;
+        }
+
+        .header-content {
+            display: flex;
+            max-width: 1040px;
+            margin: 0 auto;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-content > img {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .header-title {
+            margin: 0 0 4px;
+            font-size: 21px;
+        }
+
+        .student-info {
+            margin: 0;
+            color: #dddddd;
+            font-size: 15px;
         }
 
         .content {
-            width: 900px;
-            max-width: calc(100% - 30px);
-            margin: 25px auto;
+            width: 1040px;
+            max-width: calc(100% - 32px);
+            margin: 28px auto;
         }
 
-        .work-area,
-        .results {
-            padding: 20px;
+        .card {
+            padding: 24px;
+            border: 1px solid #d8dde3;
+            border-radius: 12px;
             background-color: white;
-            border: 1px solid #cccccc;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         }
 
-        .graph-block,
-        .form-block {
-            display: inline-block;
-            vertical-align: top;
+        .work-area {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+            gap: 36px;
+            align-items: center;
         }
 
         .graph-block {
-            width: 48%;
             text-align: center;
         }
 
-        .form-block {
-            width: 46%;
-            margin-left: 4%;
+        #plot {
+            display: block;
+            width: 100%;
+            max-width: 430px;
+            height: auto;
+            margin: 0 auto;
+            border: 1px solid #d2d7dc;
+            border-radius: 8px;
+            background-color: #ffffff;
+        }
+
+        .graph-note {
+            margin: 10px 0 0;
+            color: #68717d;
+            font-size: 14px;
         }
 
         .form-block > h1 {
-            margin-top: 10px;
-            font-size: 24px;
+            margin: 0 0 6px;
+            font-size: 26px;
         }
 
-        #plot {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #999999;
+        .form-description {
+            margin: 0 0 24px;
+            color: #68717d;
+            line-height: 1.4;
         }
 
         .field {
-            margin-bottom: 16px;
+            margin: 0 0 18px;
         }
 
         .field > label,
         .field > legend {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 7px;
             font-weight: bold;
         }
 
         input[type="text"],
         select {
-            box-sizing: border-box;
             width: 100%;
-            padding: 8px;
-            border: 1px solid #888888;
-            font-size: 15px;
+            padding: 10px 12px;
+            border: 1px solid #aeb5bd;
+            border-radius: 6px;
+            color: inherit;
+            background-color: white;
+            font: inherit;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: 2px solid #ff174f;
+            outline-offset: 1px;
+            border-color: #ff174f;
         }
 
         fieldset.field {
@@ -86,16 +138,33 @@
             border: 0;
         }
 
+        .radius-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
         .radius-options > label {
-            display: inline-block;
-            margin-right: 8px;
-            padding: 5px;
+            padding: 8px 11px;
+            border: 1px solid #cbd0d6;
+            border-radius: 6px;
+            background-color: #f7f8fa;
+            cursor: pointer;
+        }
+
+        .radius-options > label:hover {
+            border-color: #ff174f;
+        }
+
+        input[type="checkbox"] {
+            accent-color: #ff174f;
         }
 
         #errors {
-            min-height: 20px;
-            margin-bottom: 10px;
+            min-height: 21px;
+            margin: -3px 0 12px;
             color: #b00020;
+            line-height: 1.4;
         }
 
         #errors:not(:empty)::before {
@@ -104,31 +173,51 @@
         }
 
         button {
-            padding: 9px 15px;
-            border: 1px solid #24485f;
+            padding: 10px 18px;
+            border: 1px solid #d20f40;
+            border-radius: 6px;
             color: white;
-            background-color: #2f5d7c;
+            background-color: #ff174f;
             font: inherit;
+            font-weight: bold;
             cursor: pointer;
         }
 
         button:hover {
-            background-color: #24485f;
+            background-color: #d20f40;
         }
 
         .results {
-            margin-top: 20px;
+            margin-top: 22px;
         }
 
-        .results h2 {
-            display: inline-block;
-            margin: 0 20px 15px 0;
+        .results-heading {
+            display: flex;
+            margin-bottom: 16px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .results-heading > h2 {
+            margin: 0;
+            font-size: 23px;
         }
 
         #clear-results {
-            color: #222;
+            padding: 8px 13px;
+            color: #30343a;
+            background-color: #eeeeee;
+            border-color: #c7cbd0;
+            font-weight: normal;
+        }
+
+        #clear-results:hover {
             background-color: #dddddd;
-            border-color: #999999;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
         }
 
         table {
@@ -138,39 +227,117 @@
 
         th,
         td {
-            padding: 9px;
-            border: 1px solid #aaaaaa;
+            padding: 11px 10px;
+            border-bottom: 1px solid #dfe3e7;
             text-align: center;
+            white-space: nowrap;
         }
 
         thead > tr {
-            background-color: #dbe8f0;
+            background-color: #f1f3f5;
+        }
+
+        tbody > tr:hover {
+            background-color: #fafbfc;
         }
 
         td[data-hit="true"] {
-            color: green;
+            color: #17823b;
+            font-weight: bold;
         }
 
         td[data-hit="false"] {
             color: #b00020;
+            font-weight: bold;
+        }
+
+        .empty-row {
+            color: #7a828c;
+        }
+
+        footer {
+            display: flex;
+            padding: 4px 16px 28px;
+            justify-content: center;
+            gap: 24px;
+            font-size: 14px;
+        }
+
+        footer > a {
+            color: #5b6470;
+        }
+
+        footer > a:hover {
+            color: #ff174f;
+        }
+
+        @media (max-width: 760px) {
+            #page-header {
+                padding: 14px 16px;
+            }
+
+            .header-content > img {
+                width: 46px;
+                height: 46px;
+            }
+
+            .header-title {
+                font-size: 18px;
+            }
+
+            .student-info {
+                font-size: 13px;
+            }
+
+            .content {
+                max-width: calc(100% - 20px);
+                margin: 14px auto;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .work-area {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .results-heading {
+                align-items: flex-start;
+            }
+
+            footer {
+                flex-direction: column;
+                align-items: center;
+                gap: 9px;
+            }
         }
     </style>
 </head>
 <body>
     <header id="page-header">
-        Лабораторная работа №1 - Кириллов Иван Александрович - Р3107 - Вариант №12619
+        <div class="header-content">
+            <img src="piikt-logo.jpg" alt="Логотип ПИИКТ">
+            <div>
+                <p class="header-title">Лабораторная работа №1</p>
+                <p class="student-info">Кириллов Иван Александрович · Р3107 · Вариант №12619</p>
+            </div>
+        </div>
     </header>
 
     <main class="content">
-        <section class="work-area">
+        <section class="card work-area">
             <div class="graph-block">
                 <canvas id="plot" width="420" height="420">
                     Ваш браузер не поддерживает Canvas.
                 </canvas>
+                <p class="graph-note">Область для R = <span id="current-radius">3</span></p>
             </div>
 
             <form id="point-form" class="form-block" novalidate>
                 <h1>Проверка точки</h1>
+                <p class="form-description">Выберите X, укажите Y и отметьте один или несколько радиусов.</p>
 
                 <div class="field">
                     <label for="x-value">Координата X</label>
@@ -190,11 +357,12 @@
 
                 <div class="field">
                     <label for="y-value">Координата Y</label>
-                    <input id="y-value" name="y" type="text" placeholder="Число от -5 до 5">
+                    <input id="y-value" name="y" type="text" inputmode="decimal"
+                           autocomplete="off" placeholder="Число от -5 до 5">
                 </div>
 
                 <fieldset class="field">
-                    <legend>Радиус R</legend>
+                    <legend>Радиусы R</legend>
                     <div class="radius-options">
                         <label><input type="checkbox" name="r" value="1"> 1</label>
                         <label><input type="checkbox" name="r" value="2"> 2</label>
@@ -204,29 +372,38 @@
                     </div>
                 </fieldset>
 
-                <div id="errors"></div>
+                <div id="errors" role="alert" aria-live="polite"></div>
                 <button type="submit">Проверить</button>
             </form>
         </section>
 
-        <section class="results">
-            <h2>Результаты</h2>
-            <button id="clear-results" type="button">Очистить</button>
+        <section class="card results">
+            <div class="results-heading">
+                <h2>Результаты</h2>
+                <button id="clear-results" type="button">Очистить историю</button>
+            </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>X</th>
-                        <th>Y</th>
-                        <th>R</th>
-                        <th>Результат</th>
-                        <th>Дата и время</th>
-                    </tr>
-                </thead>
-                <tbody id="results-body"></tbody>
-            </table>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>R</th>
+                            <th>Результат</th>
+                            <th>Дата и время</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body"></tbody>
+                </table>
+            </div>
         </section>
     </main>
+
+    <footer>
+        <a href="https://github.com/xelangel69/Lab-1-Web-Programming" target="_blank" rel="noopener">GitHub-репозиторий</a>
+        <a href="https://lms.tuxedo.se.ifmo.ru/newdex/program/0/courses/12/structure/chapters/88/modules/131/lessons/184" target="_blank" rel="noopener">LMS Tuxedo</a>
+    </footer>
 
     <script src="script.js"></script>
 </body>
